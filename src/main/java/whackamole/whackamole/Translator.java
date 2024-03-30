@@ -24,6 +24,7 @@ public enum Translator {
     ,   CONFIG_TICKET_LORE1                                 ("Config.Ticket.Lore1")
     ,   CONFIG_TICKET_LORE2                                 ("Config.Ticket.Lore2")
     ,   CONFIG_TICKET_LORE3                                 ("Config.Ticket.Lore3")
+    ,   MANAGER_WORLDNOTENABLED                             ("Manager.worldNotEnabled", String.class, String.class)
     ,   MANAGER_LOADINGGAMES                                ("Manager.loadingGames")
     ,   MANAGER_NOGAMESFOUND                                ("Manager.noGamesFound")
     ,   MANAGER_NAMEEXISTS                                  ("Manager.nameExists", String.class)
@@ -88,6 +89,7 @@ public enum Translator {
     ,   COMMANDS_TIPS_STREAK                                ("Commands.Tips.Streak")
     ,   COMMANDS_CREATE                                     ("Commands.Create")
     ,   COMMANDS_CREATE_SUCCESS                             ("Commands.Create.Success")
+    ,   COMMANDS_CREATE_EROR_WORLDNOTENABLED                ("Commands.Create.Error.worldNotEnabled")
     ,   COMMANDS_START                                      ("Commands.Start")
     ,   COMMANDS_START_SUCCESS                              ("Commands.Start.Success", String.class)
     ,   COMMANDS_START_ERROR_TOOMANYPLAYERS                 ("Commands.Start.Error.tooManyPlayers")
@@ -210,6 +212,7 @@ public enum Translator {
         });
         this.formattedValue = this.formattedValue.replace("{gameName}", String.valueOf(game.getName()));
         this.formattedValue = this.formattedValue.replace("{maxMissed}", String.valueOf(game.getSettings().missCount));
+        this.formattedValue = this.formattedValue.replace("{World}", String.valueOf(game.getSettings().world));
     }
     private void Format(Player player) {
         this.formattedValue = this.formattedValue.replace("{Player}", player.getName());

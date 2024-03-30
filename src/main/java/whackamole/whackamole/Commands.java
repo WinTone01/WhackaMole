@@ -80,8 +80,8 @@ public class Commands {
                         )
                         .executesPlayer((player, args) -> {
                             try {
-                                if (Config.Game.ENABLED_WOLRDS.size() > 1 && !Config.Game.ENABLED_WOLRDS.contains(player.getWorld())) {
-                                    player.sendMessage("Unable to create the game because this world in not enabled in the config\nPlease update the config to enable game creation in this world.");
+                                if (!Config.Game.ENABLED_WOLRDS.isEmpty() && !Config.Game.ENABLED_WOLRDS.contains(player.getWorld())) {
+                                    player.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_CREATE_EROR_WORLDNOTENABLED);
                                     return;
                                 }
                                 String gameName = (String) args.get(0);

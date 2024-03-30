@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 
+import com.mojang.logging.LogQueues;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -85,7 +86,7 @@ public final class GamesManager implements Listener {
                 }
 
                 if (world == null || yWorld.equals(world.getName())) {
-                    if(Config.Game.ENABLED_WOLRDS.size() > 1 && ! Config.Game.ENABLED_WOLRDS.contains(yWorld)) {
+                    if(!Config.Game.ENABLED_WOLRDS.isEmpty() && ! Config.Game.ENABLED_WOLRDS.contains(yWorld)) {
                         Logger.warning(String.format("Skipping game file %s since the world %s is not enabled in the config", i.getName(), yWorld));
                         continue file_loop;
                     }
@@ -100,8 +101,8 @@ public final class GamesManager implements Listener {
         }
         
         for(var game : DBGameList) {
-            if(Config.Game.ENABLED_WOLRDS.size() > 1 && ! Config.Game.ENABLED_WOLRDS.contains(game.worldName)) {
-                Logger.warning(String.format("Skipping game %s since the world %s is not enabled in the config", game.Name, game.worldName));
+            if(!Config.Game.ENABLED_WOLRDS.isEmpty() && ! Config.Game.ENABLED_WOLRDS.contains(game.worldName)) {
+                Logger.warning(Translator.MANAGER_WORLDNOTENABLED.Format(game.Name, game.worldName));
                 continue;
             }
             this.games.add(new Game(game));
@@ -178,7 +179,7 @@ public final class GamesManager implements Listener {
     }
     @EventHandler
     public void onWorldLoad(WorldLoadEvent e) {
-        if (Config.Game.ENABLED_WOLRDS.size() > 1 && ! Config.Game.ENABLED_WOLRDS.contains(e.getWorld())) {
+        if (!Config.Game.ENABLED_WOLRDS.isEmpty() && ! Config.Game.ENABLED_WOLRDS.contains(e.getWorld())) {
             return;
         }
         Logger.info(Translator.MANAGER_LOADINGGAMES.Format(e.getWorld().getName()));
