@@ -1,5 +1,6 @@
 package whackamole.whackamole;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -20,7 +21,7 @@ public class Config {
 
     public static class AppConfig {
         public static Locale Language = new Locale("en", "US");
-        public final static String configFileName = "config.yml", configVersion = "1.7";
+        public final static String configFileName = "config.yml", configVersion = "1.8";
 
         public static String storageFolder = "./plugins/WhackaMole"
                 ,   PREFIX = ChatColor.translateAlternateColorCodes('&', "&e&l[&6&lWAM&e&l] &f> ");
@@ -75,7 +76,7 @@ public class Config {
             FiELD_MARGIN_Y          = configFile.getDouble("Field extension.height");
 
             ENABLE_GAMECONFIG       = configFile.getBoolean("Game config");
-            ENABLED_WOLRDS          = configFile.getList("Enabled worlds");
+            ENABLED_WOLRDS          = configFile.getList("Enabled worlds", new ArrayList<>());
             HITSOUND                = configFile.getSound("HitSound");
             MISSSOUND               = configFile.getSound("MissedSound");
 

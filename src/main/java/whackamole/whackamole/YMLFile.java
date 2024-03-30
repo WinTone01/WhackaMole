@@ -65,6 +65,10 @@ public class YMLFile {
         return this.FileConfig.getList(path);
     }
 
+    public List<?> getList(String path, List<?> def) {
+        return this.FileConfig.getList(path, def);
+    }
+
     public Sound getSound(String path) {
         return Sound.valueOf(this.FileConfig.getString(path));
     }
