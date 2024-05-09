@@ -16,11 +16,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
@@ -220,6 +217,26 @@ public final class GamesManager implements Listener {
             } else if (gameRunner != null && gameRunner.player == player) {
                 game.Stop();
                 break;
+            }
+        }
+    }
+
+    @EventHandler
+    public void PlayerChangedWorldEvent(PlayerChangedWorldEvent e) {
+        Player player = e.getPlayer();
+        for (Game game : games) {
+            if (!game.onGrid(player)) {
+                game.actionbarParse(player.getUniqueId(), "");
+            }
+        }
+    }
+
+    @EventHandler
+    public void PlayerTeleportEvent(PlayerTeleportEvent e) {
+        Player player = e.getPlayer();
+        for (Game game : games) {
+            if (!game.onGrid(player)) {
+                game.actionbarParse(player.getUniqueId(), "");
             }
         }
     }
