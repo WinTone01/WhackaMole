@@ -820,11 +820,8 @@ public class Game {
      * @return True if the player is on the grid
      */
     public boolean onGrid(Player player) {
-        if (player.getWorld() != settings.world ) {
-            return false;
-        }
 
-        boolean playerOnGrid = this.grid.onGrid(player);
+        boolean playerOnGrid = (player.getWorld() == settings.world && this.grid.onGrid(player));
 
         // * Player walks on the grid
         if (playerOnGrid && !currentyOnGird.contains(player.getUniqueId())) {
@@ -868,7 +865,7 @@ public class Game {
         player.getInventory().removeItem(Config.Game.TICKET);
     }
 
-    private void actionbarParse(UUID player, String text) {
+    public void actionbarParse(UUID player, String text) {
         Bukkit.getPlayer(player).spigot().sendMessage(
                 ChatMessageType.ACTION_BAR,
                 new ComponentBuilder()
