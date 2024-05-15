@@ -211,7 +211,7 @@ public final class GamesManager implements Listener {
             if (game.onGrid(player)) {
                 if (gameRunner == null) continue;
                 if (gameRunner.player != player) {
-                    gameRunner.RemovePlayerFromGame(e);
+                    gameRunner.RemovePlayerFromGame(e.getPlayer(), e.getFrom(), Objects.requireNonNull(e.getTo()));
                 }
                 break;
             } else if (gameRunner != null && gameRunner.player == player) {
@@ -225,8 +225,16 @@ public final class GamesManager implements Listener {
     public void PlayerChangedWorldEvent(PlayerChangedWorldEvent e) {
         Player player = e.getPlayer();
         for (Game game : games) {
-            if (!game.onGrid(player)) {
-                game.actionbarParse(player.getUniqueId(), "");
+            var gameRunner = game.getRunning().orElse(null);
+            if (game.onGrid(player)) {
+                if (gameRunner == null) continue;
+                if (gameRunner.player != player) {
+                    player.teleport(game.getSettings().teleportLocation);
+                }
+                break;
+            } else if (gameRunner != null && gameRunner.player == player) {
+                game.Stop();
+                break;
             }
         }
     }
@@ -235,8 +243,16 @@ public final class GamesManager implements Listener {
     public void PlayerTeleportEvent(PlayerTeleportEvent e) {
         Player player = e.getPlayer();
         for (Game game : games) {
-            if (!game.onGrid(player)) {
-                game.actionbarParse(player.getUniqueId(), "");
+            var gameRunner = game.getRunning().orElse(null);
+            if (game.onGrid(player, e.getTo())) {
+                if (gameRunner == null) continue;
+                if (gameRunner.player != player) {
+                    gameRunner.RemovePlayerFromGame(e.getPlayer(), e.getFrom(), Objects.requireNonNull(e.getTo()));
+                }
+                break;
+            } else if (gameRunner != null && gameRunner.player == player) {
+                game.Stop();
+                break;
             }
         }
     }
