@@ -458,7 +458,7 @@ public class Game {
             }
             if (settings.Music != null) {
                 try {
-                    this.player.playSound(player, settings.Music, 1, 1);
+                    this.player.playSound(player.getLocation(), settings.Music, 1.0F, 1.0F);
                 } catch (Exception e) {
                     Logger.error(e.getMessage());
                 }
@@ -541,10 +541,9 @@ public class Game {
                 this.setSpeedScale();
         }
 
-        public void RemovePlayerFromGame(PlayerMoveEvent e) {
-            Player player = e.getPlayer();
+        public void RemovePlayerFromGame(Player player, Location from, Location to) {
             Location playerLocation = player.getLocation();
-            Vector moveVector = e.getFrom().toVector().subtract(e.getTo().toVector()).normalize().multiply(2).setY(1.5);
+            Vector moveVector = from.toVector().subtract(to.toVector()).normalize().multiply(2).setY(1.5);
             while (Game.this.grid.onGrid(playerLocation)) {
                 if (moveVector.getX() == 0 && moveVector.getZ() == 0) {
                     moveVector = Game.this.getSettings().spawnRotation.getDirection();
@@ -840,6 +839,29 @@ public class Game {
 
         return playerOnGrid;
     }
+
+    public boolean onGrid(Player player, Location loc) {
+
+        boolean playerOnGrid = (player.getWorld() == settings.world && this.grid.onGrid(loc));
+
+        // * Player walks on the grid
+        if (playerOnGrid && !currentyOnGird.contains(player.getUniqueId())) {
+            this.Start(player);
+            currentyOnGird.add(player.getUniqueId());
+            this.cooldown.walkOnGridHook(player);
+            return playerOnGrid;
+        }
+
+        // * Player walks of the grid
+        if (!playerOnGrid && currentyOnGird.contains(player.getUniqueId())) {
+            currentyOnGird.remove(player.getUniqueId());
+            Game.this.actionbarParse(player.getUniqueId(), "");
+            return playerOnGrid;
+        }
+
+        return playerOnGrid;
+    }
+
     public boolean onGrid(Location loc) {
         if (loc.getWorld() != settings.world ) {
             return false;
@@ -905,15 +927,15 @@ public class Game {
         if (this.getRunning().isEmpty())
             return false;
 
+        Optional<Mole> optionalMole = this.grid.handleHitEvent(e.getEntity());
+        if (optionalMole.isEmpty())
+            return false;
+
         Player player = (Player) e.getDamager();
         if (player != this.game.player || !player.getInventory().getItemInMainHand().equals(Config.Game.PLAYER_AXE)) {
             e.setCancelled(true);
             return true;
         }
-
-        Optional<Mole> optionalMole = this.grid.handleHitEvent(e.getEntity());
-        if (optionalMole.isEmpty())
-            return false;
         
         Mole mole = optionalMole.get();
         this.game.moleHit(mole);
