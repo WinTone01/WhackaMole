@@ -6,12 +6,12 @@ import java.util.*;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
@@ -224,14 +224,11 @@ public class Game {
                     Translator.GAME_CONFIG_TPLOCATION.toString(),
                     Translator.GAME_CONFIG_SCORELOCATION.toString(),
                     Translator.GAME_CONFIG_STREAKHOLOLOCATION.toString(),
+                    Translator.GAME_CONFIG_TOGGLESCOREBOARD.toString(),
                     Translator.GAME_CONFIG_ENDMESSAGE.toString(),
                     "\n");
 
-            if (Updater.versionCompare(Bukkit.getBukkitVersion().split("-")[0], "1.17.2")) {
-                this.gameConfig.FileConfig.options().header(String.join("", header.stream().map(o -> String.format("# %s\n", o)).toList()));
-            } else {
-                this.gameConfig.FileConfig.options().setHeader(header);
-            }
+            this.gameConfig.FileConfig.options().setHeader(header);
 
             this.gameConfig.set("Properties.ID", getID());
             this.gameConfig.set("Properties.Name", getName());
@@ -252,6 +249,7 @@ public class Game {
             this.gameConfig.set("Properties.teleportLocation", Game.this.settings.teleportLocation);
             this.gameConfig.set("Properties.scoreLocation", Game.this.settings.scoreLocation);
             this.gameConfig.set("Properties.streakLocation", Game.this.settings.streakHoloLocation);
+            this.gameConfig.set("Properties.toggleScoreboard", Game.this.settings.toggleScoreboard);
             this.gameConfig.set("Field Data.World", Game.this.settings.worldName);
             try {
                 this.gameConfig.save();
@@ -279,6 +277,7 @@ public class Game {
             Game.this.settings.teleportLocation = this.gameConfig.FileConfig.getLocation("Properties.teleportLocation");
             Game.this.settings.scoreLocation = this.gameConfig.FileConfig.getLocation("Properties.scoreLocation");
             Game.this.settings.streakHoloLocation = this.gameConfig.FileConfig.getLocation("Properties.streakLocation");
+            Game.this.settings.toggleScoreboard = this.gameConfig.FileConfig.getBoolean("Properties.toggleScoreboard");
 
             if  (Game.this.settings.ID == -1) {
                 Game.this.grid = Grid.Deserialize(Game.this.settings.world, this.gameConfig.getList("Field Data.Grid"));
@@ -329,7 +328,6 @@ public class Game {
 
         private void onLoad() {
             this.scores.clear();
-            this.createTopHolo();
             var dbScores = db.Select(getID());
             for(var i : dbScores) {
                 Score score = new Score();
@@ -337,7 +335,6 @@ public class Game {
                 score.onLoad();
                 this.scores.add(score);
             }
-            this.updateTopHolo();
         }
         
         private void Delete() {
@@ -368,6 +365,33 @@ public class Game {
             return this.scores.subList(0, count).toArray(template);
         }
 
+        public boolean checkHolo() {
+            if (!this.holoScores.isEmpty()) {
+                this.holoScores.clear();
+            }
+            for (Entity a : Objects.requireNonNull(settings.scoreLocation.getWorld()).getNearbyEntities(settings.scoreLocation, 1,2,1)) {
+                if (a.getType() == EntityType.ARMOR_STAND) {
+                    if (a.getScoreboardTags().toString().contains("highScore")) {
+                        this.highScore  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().toString().contains("Score")) {
+                        this.Score  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().toString().contains("Streak")) {
+                        this.Streak  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().toString().contains("molesHit")) {
+                        this.molesHit  = (ArmorStand) a;
+                    }
+                }
+            }
+
+            if (this.holoScores.isEmpty()) {
+                this.holoScores.add(this.highScore);
+                this.holoScores.add(this.Score);
+                this.holoScores.add(this.Streak);
+                this.holoScores.add(this.molesHit);
+            }
+            return this.holoScores.size() == 4;
+        }
+
         private void createTopHolo() {
             var settings = Game.this.getSettings();
             Location spawnloc = settings.scoreLocation.clone().add(0,1.75,0);
@@ -380,7 +404,6 @@ public class Game {
             this.holoScores.add(Streak);
             this.holoScores.add(molesHit);
             for (ArmorStand armorStand : this.holoScores) {
-                armorStand.addScoreboardTag("Mole_new");
                 armorStand.setVisible(true);
                 armorStand.setCustomNameVisible(true);
                 armorStand.setGravity(false);
@@ -388,6 +411,11 @@ public class Game {
                 armorStand.setMarker(true);
                 armorStand.isInvulnerable();
             }
+            this.highScore.addScoreboardTag("highScore");
+            this.Score.addScoreboardTag("Score");
+            this.Streak.addScoreboardTag("Streak");
+            this.molesHit.addScoreboardTag("molesHit");
+
             this.highScore.setCustomName(DefaultFontInfo.Color("&e&l[-> &6&lHigh scores &e&l<-]"));
             this.Score.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lScore: &bNone &e&l-]"));
             this.Streak.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lStreaks: &byou can &e&l-]"));
@@ -430,10 +458,18 @@ public class Game {
         }
 
         private boolean Start(Player player) {
+
             if (cooldown.contains(player)
             || !player.hasPermission(Config.Permissions.PERM_PLAY)
             || Config.Game.PLAYER_AXE == null
             ) {
+                return false;
+            }
+
+            if (!scoreboard.checkHolo()) {
+                Logger.info(String.valueOf(getScoreboard().holoScores.size()));
+                Logger.error(Translator.GAME_INVALIDSCOREBOARD);
+                Game.this.actionbarParse(player.getUniqueId(), Translator.GAME_ACTIONBAR_ERROR.Format());
                 return false;
             }
 
@@ -483,7 +519,9 @@ public class Game {
                 Game.this.scoreboard.add(this.player, this.score, this.molesHit, this.highestStreak);
                 Game.this.cooldown.add(this.player);
             }
-            Game.this.scoreboard.updateTopHolo();
+            if (settings.toggleScoreboard) {
+                Game.this.scoreboard.updateTopHolo();
+            }
             this.player = null;
         }
 
@@ -678,7 +716,6 @@ public class Game {
 
     public void Unload() {
         this.Stop();
-        this.scoreboard.killTopHolo();
     }
 
     public void Save() {
@@ -801,6 +838,17 @@ public class Game {
     public void setStreakHoloLocation(World world, double X, double Y, double Z) {
         this.settings.streakHoloLocation = new Location(world, X, Y, Z);
         this.Save();
+    }
+    public void setToggleScoreboard(Boolean value) {
+        this.settings.toggleScoreboard = value;
+        this.Save();
+
+        if (value) {
+            this.getScoreboard().createTopHolo();
+            this.getScoreboard().updateTopHolo();
+        } else if (getScoreboard().checkHolo()) {
+            this.getScoreboard().killTopHolo();
+        }
     }
 
 
