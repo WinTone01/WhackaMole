@@ -6,12 +6,12 @@ import java.util.*;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
 
@@ -224,14 +224,11 @@ public class Game {
                     Translator.GAME_CONFIG_TPLOCATION.toString(),
                     Translator.GAME_CONFIG_SCORELOCATION.toString(),
                     Translator.GAME_CONFIG_STREAKHOLOLOCATION.toString(),
+                    Translator.GAME_CONFIG_TOGGLESCOREBOARD.toString(),
                     Translator.GAME_CONFIG_ENDMESSAGE.toString(),
                     "\n");
 
-            if (Updater.versionCompare(Bukkit.getBukkitVersion().split("-")[0], "1.17.2")) {
-                this.gameConfig.FileConfig.options().header(String.join("", header.stream().map(o -> String.format("# %s\n", o)).toList()));
-            } else {
-                this.gameConfig.FileConfig.options().setHeader(header);
-            }
+            this.gameConfig.FileConfig.options().setHeader(header);
 
             this.gameConfig.set("Properties.ID", getID());
             this.gameConfig.set("Properties.Name", getName());
@@ -252,6 +249,7 @@ public class Game {
             this.gameConfig.set("Properties.teleportLocation", Game.this.settings.teleportLocation);
             this.gameConfig.set("Properties.scoreLocation", Game.this.settings.scoreLocation);
             this.gameConfig.set("Properties.streakLocation", Game.this.settings.streakHoloLocation);
+            this.gameConfig.set("Properties.toggleScoreboard", Game.this.settings.toggleScoreboard);
             this.gameConfig.set("Field Data.World", Game.this.settings.worldName);
             try {
                 this.gameConfig.save();
@@ -279,6 +277,7 @@ public class Game {
             Game.this.settings.teleportLocation = this.gameConfig.FileConfig.getLocation("Properties.teleportLocation");
             Game.this.settings.scoreLocation = this.gameConfig.FileConfig.getLocation("Properties.scoreLocation");
             Game.this.settings.streakHoloLocation = this.gameConfig.FileConfig.getLocation("Properties.streakLocation");
+            Game.this.settings.toggleScoreboard = this.gameConfig.FileConfig.getBoolean("Properties.toggleScoreboard");
 
             if  (Game.this.settings.ID == -1) {
                 Game.this.grid = Grid.Deserialize(Game.this.settings.world, this.gameConfig.getList("Field Data.Grid"));
@@ -329,7 +328,6 @@ public class Game {
 
         private void onLoad() {
             this.scores.clear();
-            this.createTopHolo();
             var dbScores = db.Select(getID());
             for(var i : dbScores) {
                 Score score = new Score();
@@ -337,7 +335,6 @@ public class Game {
                 score.onLoad();
                 this.scores.add(score);
             }
-            this.updateTopHolo();
         }
         
         private void Delete() {
@@ -353,7 +350,7 @@ public class Game {
 
         public Score[] getTop(int count, int scoreType) {
             Score[] template = new Score[]{};
-            if (scores.size() == 0) {
+            if (scores.isEmpty()) {
                 return this.scores.toArray(template);
             }
             count = Math.min(this.scores.size(), count);
@@ -368,6 +365,43 @@ public class Game {
             return this.scores.subList(0, count).toArray(template);
         }
 
+        public boolean checkHolo() {
+            if (!this.holoScores.isEmpty()) {
+                this.holoScores.clear();
+            }
+            for (Entity a : Objects.requireNonNull(settings.scoreLocation.getWorld()).getNearbyEntities(settings.scoreLocation, 1,2,1)) {
+                if (a.getType() == EntityType.ARMOR_STAND) {
+                    if (a.getScoreboardTags().contains("highScore")) {
+                        this.highScore  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().contains("Score")) {
+                        this.Score  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().contains("Streak")) {
+                        this.Streak  = (ArmorStand) a;
+                    } else if (a.getScoreboardTags().contains("molesHit")) {
+                        this.molesHit  = (ArmorStand) a;
+                    }
+                }
+            }
+
+            if (this.holoScores.isEmpty()) {
+                this.holoScores.add(this.highScore);
+                this.holoScores.add(this.Score);
+                this.holoScores.add(this.Streak);
+                this.holoScores.add(this.molesHit);
+            }
+            return this.holoScores.size() == 4;
+        }
+
+        private ArmorStand addArmorStandSettings(ArmorStand armorStand) {
+            armorStand.setVisible(true);
+            armorStand.setCustomNameVisible(true);
+            armorStand.setGravity(false);
+            armorStand.setInvisible(true);
+            armorStand.setMarker(true);
+            armorStand.isInvulnerable();
+            return armorStand;
+        }
+
         private void createTopHolo() {
             var settings = Game.this.getSettings();
             Location spawnloc = settings.scoreLocation.clone().add(0,1.75,0);
@@ -375,23 +409,28 @@ public class Game {
             this.Score      = (ArmorStand) settings.world.spawnEntity(spawnloc.subtract(0,0.25,0), EntityType.ARMOR_STAND);
             this.Streak     = (ArmorStand) settings.world.spawnEntity(spawnloc.subtract(0,0.25,0), EntityType.ARMOR_STAND);
             this.molesHit   = (ArmorStand) settings.world.spawnEntity(spawnloc.subtract(0,0.25,0), EntityType.ARMOR_STAND);
-            this.holoScores.add(highScore);
-            this.holoScores.add(Score);
-            this.holoScores.add(Streak);
-            this.holoScores.add(molesHit);
-            for (ArmorStand armorStand : this.holoScores) {
-                armorStand.addScoreboardTag("Mole_new");
-                armorStand.setVisible(true);
-                armorStand.setCustomNameVisible(true);
-                armorStand.setGravity(false);
-                armorStand.setInvisible(true);
-                armorStand.setMarker(true);
-                armorStand.isInvulnerable();
-            }
+            this.holoScores.add(this.addArmorStandSettings(this.highScore));
+            this.holoScores.add(this.addArmorStandSettings(this.Score));
+            this.holoScores.add(this.addArmorStandSettings(this.Streak));
+            this.holoScores.add(this.addArmorStandSettings(this.molesHit));
+
+            this.highScore.addScoreboardTag("highScore");
+            this.Score.addScoreboardTag("Score");
+            this.Streak.addScoreboardTag("Streak");
+            this.molesHit.addScoreboardTag("molesHit");
+
+            var ScoreSTR = getTop(1, 0);
+            var StreakSTR = getTop(1, 1);
+            var molesHitSTR = getTop(1, 2);
+
             this.highScore.setCustomName(DefaultFontInfo.Color("&e&l[-> &6&lHigh scores &e&l<-]"));
-            this.Score.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lScore: &bNone &e&l-]"));
-            this.Streak.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lStreaks: &byou can &e&l-]"));
-            this.molesHit.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lMoles hit: &bbe the first! &e&l-]"));
+            if (ScoreSTR.length > 0) this.Score.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lScore: &3" + ScoreSTR[0].player.getName() + "&f - &b" + ScoreSTR[0].Score + " &e&l-]"));
+            else this.Score.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lScore: &bNone &e&l-]"));
+            if (StreakSTR.length > 0) this.Streak.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lStreaks: &3" + StreakSTR[0].player.getName() + "&f - &b" + StreakSTR[0].scoreStreak + " &e&l-]"));
+            else this.Streak.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lStreaks: &byou can &e&l-]"));
+            if (molesHitSTR.length > 0) this.molesHit.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lMoles hit: &3" + molesHitSTR[0].player.getName() + "&f - &b" + molesHitSTR[0].molesHit + " &e&l-]"));
+            else this.molesHit.setCustomName(DefaultFontInfo.Color("&e&l[- &6&lMoles hit: &bbe the first! &e&l-]"));
+
         }
         private void updateTopHolo() {
             var Score = getTop(1, 0);
@@ -409,8 +448,10 @@ public class Game {
             molesHit.teleport(loc.subtract(0,0.25,0));
         }
         public void killTopHolo() {
-            for (ArmorStand armorStand : this.holoScores) {
-                armorStand.remove();
+            if (this.checkHolo()) {
+                for (ArmorStand armorStand : this.holoScores) {
+                    armorStand.remove();
+                }
             }
         }
     }
@@ -430,10 +471,18 @@ public class Game {
         }
 
         private boolean Start(Player player) {
+
             if (cooldown.contains(player)
             || !player.hasPermission(Config.Permissions.PERM_PLAY)
             || Config.Game.PLAYER_AXE == null
             ) {
+                return false;
+            }
+
+            if (!scoreboard.checkHolo()) {
+                Logger.info(String.valueOf(getScoreboard().holoScores.size()));
+                Logger.error(Translator.GAME_INVALIDSCOREBOARD);
+                Game.this.actionbarParse(player.getUniqueId(), Translator.GAME_ACTIONBAR_ERROR.Format());
                 return false;
             }
 
@@ -483,7 +532,9 @@ public class Game {
                 Game.this.scoreboard.add(this.player, this.score, this.molesHit, this.highestStreak);
                 Game.this.cooldown.add(this.player);
             }
-            Game.this.scoreboard.updateTopHolo();
+            if (settings.toggleScoreboard) {
+                Game.this.scoreboard.updateTopHolo();
+            }
             this.player = null;
         }
 
@@ -678,7 +729,6 @@ public class Game {
 
     public void Unload() {
         this.Stop();
-        this.scoreboard.killTopHolo();
     }
 
     public void Save() {
@@ -801,6 +851,16 @@ public class Game {
     public void setStreakHoloLocation(World world, double X, double Y, double Z) {
         this.settings.streakHoloLocation = new Location(world, X, Y, Z);
         this.Save();
+    }
+    public void setToggleScoreboard(Boolean value) {
+        this.settings.toggleScoreboard = value;
+        this.Save();
+
+        if (value) {
+            this.getScoreboard().createTopHolo();
+        } else if (getScoreboard().checkHolo()) {
+            this.getScoreboard().killTopHolo();
+        }
     }
 
 

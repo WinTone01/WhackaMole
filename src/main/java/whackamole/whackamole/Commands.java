@@ -35,6 +35,7 @@ public class Commands {
     String highscoreTip     = String.valueOf(Translator.COMMANDS_TIPS_HIGHSCORE);
     String teleportTip     = String.valueOf(Translator.COMMANDS_TIPS_TELEPORT);
     String streakTip     = String.valueOf(Translator.COMMANDS_TIPS_STREAK);
+    String toggleScoreboardTip    = String.valueOf(Translator.COMMANDS_TIPS_TOGGLESCOREBOARD);
     private Settings settingType = Settings.NULL;
     enum Settings {
         NULL,
@@ -51,7 +52,8 @@ public class Commands {
         COOLDOWN(Translator.COMMANDS_SETTINGS_COOLDOWN),
         MUSIC(Translator.COMMANDS_SETTINGS_MUSIC),
         MOLEHEAD(Translator.COMMANDS_SETTINGS_MOLEHEAD),
-        JACKPOTHEAD(Translator.COMMANDS_SETTINGS_JACKPOTHEAD);
+        JACKPOTHEAD(Translator.COMMANDS_SETTINGS_JACKPOTHEAD),
+        TOGGLESCOREBOARD(Translator.COMMANDS_SETTINGS_TOGGLESCOREBOARD);
 
         Translator value;
         Settings() {}
@@ -118,7 +120,7 @@ public class Commands {
                         .withArguments(gameNameArgument("Game"))
                         .executesPlayer((player, args) -> {
                             Game game = (Game) args.get(0);
-                            if (game != null) {
+                            if (game.getRunning().isPresent()) {
                                 game.Stop();
                                 player.sendMessage(Config.AppConfig.PREFIX + Translator.Format(Translator.COMMANDS_STOP_SUCCESS, game.getName()));
                             } else player.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_STOP_ERROR_NOACTIVEGAME);
@@ -187,6 +189,7 @@ public class Commands {
                                     line + ChatColor.WHITE + Translator.COMMANDS_SETTINGS_JACKPOTHEAD          + ": " + ChatColor.AQUA + settings.jackpotHead +
                                     line + ChatColor.WHITE + Translator.COMMANDS_SETTINGS_COOLDOWN             + ": " + ChatColor.AQUA + settings.getCooldown() +
                                     line + ChatColor.WHITE + Translator.COMMANDS_SETTINGS_MUSIC                + ": " + ChatColor.AQUA + settings.Music +
+                                    line + ChatColor.WHITE + Translator.COMMANDS_SETTINGS_TOGGLESCOREBOARD     + ": " + ChatColor.AQUA + settings.toggleScoreboard +
                                     ChatColor.YELLOW + "\n| \n[>------------------------------------<]";
                             player.sendMessage(outputString);
 
@@ -266,6 +269,10 @@ public class Commands {
                                     game.setJackpotHead((String) args.get(2));
                                     player.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_SETTINGS_JACKPOTHEAD_SUCCESS.Format(args.get(2)));
                                 }
+                                case TOGGLESCOREBOARD -> {
+                                    game.setToggleScoreboard(Boolean.parseBoolean((String) args.get(2)));
+                                    player.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_SETTINGS_TOGGLESCOREBOARD_SUCCESS.Format(args.get(2)));
+                                }
                             }
                         })
                 )
@@ -335,6 +342,7 @@ public class Commands {
             if (Settings.MUSIC.toString().equals(Info.input()))                     return Settings.MUSIC;
             if (Settings.MOLEHEAD.toString().equals(Info.input()))                  return Settings.MOLEHEAD;
             if (Settings.JACKPOTHEAD.toString().equals(Info.input()))               return Settings.JACKPOTHEAD;
+            if (Settings.TOGGLESCOREBOARD.toString().equals(Info.input()))          return Settings.TOGGLESCOREBOARD;
             return Settings.NULL;
 
         }).replaceSuggestions(ArgumentSuggestions.strings(String.valueOf(Translator.COMMANDS_SETTINGS_DIRECTION)
@@ -351,6 +359,7 @@ public class Commands {
                 , String.valueOf(Translator.COMMANDS_SETTINGS_MUSIC)
                 , String.valueOf(Translator.COMMANDS_SETTINGS_MOLEHEAD)
                 , String.valueOf(Translator.COMMANDS_SETTINGS_JACKPOTHEAD)
+                , String.valueOf(Translator.COMMANDS_SETTINGS_TOGGLESCOREBOARD)
         )));
 
         arguments.add(new TextArgument("settingValue").replaceSuggestions(ArgumentSuggestions.stringsWithTooltips(info -> {
@@ -450,10 +459,10 @@ public class Commands {
                 }
                 case MUSIC -> {
                     return new IStringTooltip[] {
-                            StringTooltip.ofString("\"minecraft:music.dragon\"",        this.musicTip),
-                            StringTooltip.ofString("\"minecraft:music.under_water\"",   this.musicTip),
-                            StringTooltip.ofString("\"minecraft:music_disc.pigstep\"",  this.musicTip),
-                            StringTooltip.ofString("\"minecraft:music_disc.ward\"",     this.musicTip)
+                            StringTooltip.ofString("\"minecraft:music.dragon\"",                                            this.musicTip),
+                            StringTooltip.ofString("\"minecraft:music.under_water\"",                                       this.musicTip),
+                            StringTooltip.ofString("\"minecraft:music_disc.pigstep\"",                                      this.musicTip),
+                            StringTooltip.ofString("\"minecraft:music_disc.ward\"",                                         this.musicTip)
                     };
                 }
                 case MOLEHEAD -> {
@@ -470,6 +479,12 @@ public class Commands {
                             StringTooltip.ofString("572c1040fd40e4e83a5be50edcb1cd037c9c66b9d0c9171e7080a02d3f4cfbf",       this.moleHeadTip),
                             StringTooltip.ofString("5d8e1ebc83f0f5662821bc6600981e17f3ce26b2574edf67de228c749481f230",      this.moleHeadTip),
                             StringTooltip.ofString("95fd67d56ffc53fb360a17879d9b5338d7332d8f129491a5e17e8d6e8aea6c3a",      this.moleHeadTip),
+                    };
+                }
+                case TOGGLESCOREBOARD -> {
+                    return new IStringTooltip[] {
+                            StringTooltip.ofString("true",                                                                  this.toggleScoreboardTip),
+                            StringTooltip.ofString("false",                                                                 this.toggleScoreboardTip)
                     };
                 }
             }

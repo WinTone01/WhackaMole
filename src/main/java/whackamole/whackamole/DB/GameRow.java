@@ -39,7 +39,12 @@ public class GameRow extends Row {
      * Determines if the jackpot is allowed to be spawned
      */
     public boolean hasJackpot = true;
-    
+
+    /**
+     * Determines if the scoreboard holo is allowed
+     */
+    public boolean toggleScoreboard = true;
+
     /**
     * The Mole head to be used
     */
