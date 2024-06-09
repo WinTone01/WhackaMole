@@ -4,6 +4,6 @@ main: whackamole.whackamole.Main
 api-version: '1.18'
 prefix: WAM
 authors: [ CraZy ]
-softdepend: [ Vault ]
+softdepend: [Vault, Multiverse-Core, My_Worlds]
 description: Whack a Mole plugin
 website: https://github.com/CraZyRc

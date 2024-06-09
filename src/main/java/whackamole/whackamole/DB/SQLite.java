@@ -31,6 +31,7 @@ public class SQLite {
             getScoreboardDB().Create();
         }
         getGameDB().Alter("Game", "Music", "TEXT");
+        getGameDB().Alter("Game", "toggleScoreboard", "INTEGER");
 
     }
 

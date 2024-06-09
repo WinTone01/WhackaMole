@@ -120,7 +120,7 @@ public class Commands {
                         .withArguments(gameNameArgument("Game"))
                         .executesPlayer((player, args) -> {
                             Game game = (Game) args.get(0);
-                            if (game != null) {
+                            if (game.getRunning().isPresent()) {
                                 game.Stop();
                                 player.sendMessage(Config.AppConfig.PREFIX + Translator.Format(Translator.COMMANDS_STOP_SUCCESS, game.getName()));
                             } else player.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_STOP_ERROR_NOACTIVEGAME);
