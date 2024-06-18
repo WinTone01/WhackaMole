@@ -1,10 +1,14 @@
 package whackamole.whackamole;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.regex.Matcher;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public enum Translator {
@@ -172,9 +176,13 @@ public enum Translator {
 
 
     private void LookupTranslation() {
+        File langFile = new File(Config.AppConfig.storageFolder + "/locales", Config.AppConfig.Language + ".properties");
+        Properties props = new Properties();
         try {
-            ResourceBundle resource = ResourceBundle.getBundle("Lang", Config.AppConfig.Language);
-            this.value = resource.getString(this.key);
+            FileInputStream getProps = new FileInputStream(langFile);
+            props.load(getProps);
+            this.value = props.getProperty(this.key);
+            getProps.close();
         } catch(Exception e) {}
     }
 
@@ -258,8 +266,39 @@ public enum Translator {
         else return " '" + String.join("', '", out) + "' ";
     }
 
+    private static void loadFiles() {
+        List<String> languages = Arrays.asList("en_US", "de_DE", "nl_NL", "fr_FR", "es_ES", "ru_RU", "tr_TR", "zh_TW");
+        File langFolder = new File(Config.AppConfig.storageFolder + "/locales");
+
+        // * Folder creation
+        if (!langFolder.exists()) {
+            langFolder.mkdirs();
+            Logger.info("Langfolder created");
+        }
+
+        // * Files creation
+        try {
+            for (String language : languages) {
+                File f = new File(langFolder + "/" + language + ".properties");
+                if (!f.exists()) {
+                    InputStream load = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName());
+                    Files.copy(load, f.toPath());
+                }
+            }
+        } catch (IOException e) {
+            Logger.error(e.getMessage());
+        }
+    }
+
     public static void onLoad() {
-        for(Translator item : values()) {
+        loadFiles();
+        for (Translator item : values()) {
+            item.LookupTranslation();
+        }
+    }
+
+    public static void onReload() {
+        for (Translator item : values()) {
             item.LookupTranslation();
         }
     }

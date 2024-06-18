@@ -22,7 +22,6 @@ public class Config {
     public static class AppConfig {
         public static Locale Language = new Locale("en", "US");
         public final static String configFileName = "config.yml", configVersion = "1.8";
-
         public static String storageFolder = "./plugins/WhackaMole"
                 ,   PREFIX = ChatColor.translateAlternateColorCodes('&', "&e&l[&6&lWAM&e&l] &f> ");
 

@@ -287,6 +287,7 @@ public class Commands {
                         .withPermission(Config.Permissions.PERM_RELOAD)
                         .executes((sender, args) ->{
                             this.manager.unloadGames();
+                            Translator.onReload();
                             Config.onLoad(main);
                             Logger.onLoad(main);
                             if (!Econ.onEnable()) {
