@@ -12,7 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public enum Translator {
-        MAIN_OLDVERSION                                     ("Main.oldVersion")
+        TRANSLATOR                                          ("Translator")
+    ,   MAIN_OLDVERSION                                     ("Main.oldVersion")
     ,   MAIN_CONFIGLOADFAIL                                 ("Main.configLoadFail")
     ,   UPDATEFAIL                                          ("Update.updateFail", String.class)
     ,   LOGGER_WARNING                                      ("Logger.Warning", String.class)
@@ -162,6 +163,8 @@ public enum Translator {
     public String key;
     public String value = "";
     public String formattedValue;
+    static private Properties translatorProps;
+
     private Translator(String key) {
         this.key = key;
         this.requiredTypes = new Object[0];
@@ -176,14 +179,16 @@ public enum Translator {
 
 
     private void LookupTranslation() {
-        File langFile = new File(Config.AppConfig.storageFolder + "/locales", Config.AppConfig.Language + ".properties");
-        Properties props = new Properties();
+        if (translatorProps == null) {
+            translatorProps = new Properties();
+            File langFile = new File(Config.AppConfig.storageFolder + "/locales", Config.AppConfig.Language + ".properties");
+            try (var fileS = new FileInputStream(langFile)) {
+                translatorProps.load(fileS);
+            } catch (Exception _e) {}
+        }
         try {
-            FileInputStream getProps = new FileInputStream(langFile);
-            props.load(getProps);
-            this.value = props.getProperty(this.key);
-            getProps.close();
-        } catch(Exception e) {}
+            this.value = translatorProps.getProperty(this.key);
+        } catch (Exception _e) {}
     }
 
     public String Format() {
@@ -284,20 +289,41 @@ public enum Translator {
                     InputStream load = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName());
                     Files.copy(load, f.toPath());
                 }
+                updateFiles(f, language);
             }
         } catch (IOException e) {
             Logger.error(e.getMessage());
         }
     }
 
+    private static void updateFiles(File f, String language) {
+        String ResourceData = Config.AppConfig.storageFolder + "/locales/" + language + ".properties";
+        String FileData     = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName()).toString();
+        String[] ResourceLines = ResourceData.split("\n");
+        String[] FileLines    = FileData.split("\n");
+        int ResourceLineIndex = 0, FileLineIndex = 0;
+
+        for(; ResourceLineIndex < ResourceLines.length; ResourceLineIndex++) {
+            String ResouceKey = ResourceLines[ResourceLineIndex].split("=")[0];
+            if (FileLines[FileLineIndex].startsWith(ResouceKey)) {
+            }
+            FileLineIndex += 1;
+        }
+
+
+        // TODO: check if key in files are missing (loop through files, check if exists, if not, add)
+    }
+
     public static void onLoad() {
         loadFiles();
+        translatorProps = null;
         for (Translator item : values()) {
             item.LookupTranslation();
         }
     }
 
     public static void onReload() {
+        translatorProps = null;
         for (Translator item : values()) {
             item.LookupTranslation();
         }
