@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
+import org.bukkit.Bukkit;
+
 
 public class ResourceManager {
     private static final String[] supportedLanguages = new String[] {
@@ -56,9 +58,10 @@ public class ResourceManager {
         // * Create language files from resource files
         for (String language : supportedLanguages) {
             File file = new File(langFolder + "/" + language + ".properties");
-            try (var resource = ClassLoader.getSystemResourceAsStream(language + ".properties")) {
+            try (var resource = Main.class.getClassLoader().getResourceAsStream(language + ".properties")) {
                 if (resource == null) {
                     Logger.info(String.format("ERROR: Could not load in language resource %s!", language));
+                    return;
                 }
                 file.createNewFile();
                 var resultingData = mergeLanguageFile(resource, file);
