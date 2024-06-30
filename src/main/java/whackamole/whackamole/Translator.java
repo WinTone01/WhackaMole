@@ -1,14 +1,8 @@
 package whackamole.whackamole;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public enum Translator {
@@ -163,7 +157,6 @@ public enum Translator {
     public String key;
     public String value = "";
     public String formattedValue;
-    static private Properties translatorProps;
 
     private Translator(String key) {
         this.key = key;
@@ -179,16 +172,7 @@ public enum Translator {
 
 
     private void LookupTranslation() {
-        if (translatorProps == null) {
-            translatorProps = new Properties();
-            File langFile = new File(Config.AppConfig.storageFolder + "/locales", Config.AppConfig.Language + ".properties");
-            try (var fileS = new FileInputStream(langFile)) {
-                translatorProps.load(fileS);
-            } catch (Exception _e) {}
-        }
-        try {
-            this.value = translatorProps.getProperty(this.key);
-        } catch (Exception _e) {}
+        this.value = ResourceManager.getProperty(this.key);
     }
 
     public String Format() {
@@ -271,34 +255,13 @@ public enum Translator {
         else return " '" + String.join("', '", out) + "' ";
     }
 
-    private static void updateFiles(File f, String language) {
-        String ResourceData = Config.AppConfig.storageFolder + "/locales/" + language + ".properties";
-        String FileData     = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName()).toString();
-        String[] ResourceLines = ResourceData.split("\n");
-        String[] FileLines    = FileData.split("\n");
-        int ResourceLineIndex = 0, FileLineIndex = 0;
-
-        for(; ResourceLineIndex < ResourceLines.length; ResourceLineIndex++) {
-            String ResouceKey = ResourceLines[ResourceLineIndex].split("=")[0];
-            if (FileLines[FileLineIndex].startsWith(ResouceKey)) {
-            }
-            FileLineIndex += 1;
-        }
-
-
-        // TODO: check if key in files are missing (loop through files, check if exists, if not, add)
-    }
-
     public static void onLoad() {
-        // loadFiles();
-        translatorProps = null;
         for (Translator item : values()) {
             item.LookupTranslation();
         }
     }
 
     public static void onReload() {
-        translatorProps = null;
         for (Translator item : values()) {
             item.LookupTranslation();
         }

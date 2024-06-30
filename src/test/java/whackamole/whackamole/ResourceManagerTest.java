@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import whackamole.whackamole.helpers.TestBase;
+
 public class ResourceManagerTest extends TestBase {
     public static File testFileDirectory = new File("src/test/resources/resourceMerges");
     public static File outputFileDirectory = new File("output/resourceMerges");

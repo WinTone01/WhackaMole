@@ -1,4 +1,4 @@
-package whackamole.whackamole;
+package whackamole.whackamole.helpers;
 
 import org.assertj.core.api.JUnitBDDSoftAssertions;
 import org.bukkit.Bukkit;
@@ -31,6 +31,10 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import whackamole.whackamole.Game;
+import whackamole.whackamole.Grid;
+import whackamole.whackamole.YMLFile;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -112,7 +116,6 @@ public class TestBase {
         
         Mockito.doNothing().when(DamageableMock).setDamage(0);
         Mockito.doNothing().when(ItemMetaMock).setUnbreakable(true);
-        // when(ItemMetaMock.addEnchant(Enchantment.LURE, 1, true)).thenReturn(true);
         Mockito.doNothing().when(ItemMetaMock).addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         Mockito.doNothing().when(ItemMetaMock).setDisplayName("");
         

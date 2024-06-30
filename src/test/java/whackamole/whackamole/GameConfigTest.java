@@ -2,6 +2,8 @@ package whackamole.whackamole;
 
 import org.junit.jupiter.api.Test;
 
+import whackamole.whackamole.helpers.TestBase;
+
 public class GameConfigTest extends TestBase{
     static YMLFile OldConfigFile = new YMLFile("src/test/resources/config_1.3.yml");
     static YMLFile NewConfigFile = new YMLFile("src/main/resources/config.yml");
