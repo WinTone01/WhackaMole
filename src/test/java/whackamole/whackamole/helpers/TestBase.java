@@ -7,13 +7,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.Damageable;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 

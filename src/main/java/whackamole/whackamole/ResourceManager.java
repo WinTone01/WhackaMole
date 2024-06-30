@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -37,7 +36,7 @@ public class ResourceManager {
                 Logger.info("Langfolder created");
             } catch (Exception e) {
                 languageLoadFailed = true;
-                Logger.error("Cannot create the language folder. Permission denied!");
+                Logger.info("ERROR: Cannot create the language folder. Permission denied!");
             }
         }
     }
@@ -58,21 +57,18 @@ public class ResourceManager {
         for (String language : supportedLanguages) {
             File file = new File(langFolder + "/" + language + ".properties");
             try (var resource = ClassLoader.getSystemResourceAsStream(language + ".properties")) {
-                if (!file.exists()) {
-                    if (resource == null) {
-                        Logger.error(String.format("Could not load in language resource %s!", language));
-                    }
-                    Files.copy(resource, file.toPath());
-                } else {
-                    var resultingData = mergeLanguageFile(resource, file);
-                    var outputS = new FileOutputStream(file);
-                    outputS.write(resultingData.getBytes("utf-8"));
-                    outputS.flush();
-                    outputS.close();
+                if (resource == null) {
+                    Logger.info(String.format("ERROR: Could not load in language resource %s!", language));
                 }
+                file.createNewFile();
+                var resultingData = mergeLanguageFile(resource, file);
+                var outputS = new FileOutputStream(file);
+                outputS.write(resultingData.getBytes("utf-8"));
+                outputS.flush();
+                outputS.close();
             } catch (IOException e) {
                 languageLoadFailed = true;
-                Logger.error(String.format("Could not instantiate language file %s!", file.toPath()));
+                Logger.info(String.format("ERROR: Could not instantiate language file %s!", file.toPath()));
             }
         }
     }
@@ -83,9 +79,6 @@ public class ResourceManager {
         }
     }
     private static String mergeLanguageFile(String sourceData, String userData) {
-        // TODO: Key reordering in the user file will result in duplicate keys
-        // To combat this swithc over to linked list (allows insertions)
-
         boolean isCRLF = userData.contains("\n") ? userData.contains("\r") : true;
 
         String[] resourceData = sourceData.replaceAll("\r", "").split("\\n");
@@ -184,7 +177,7 @@ public class ResourceManager {
             languageProperties = Optional.of(properties);
         } catch (IOException e) {
             languageLoadFailed = true;
-            Logger.error(String.format("Failed to read from language file %s!", langFile.getPath()));
+            Logger.info(String.format("ERROR: Failed to read from language file %s!", langFile.getPath()));
         }
     }
 
