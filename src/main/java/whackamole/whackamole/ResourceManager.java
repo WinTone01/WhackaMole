@@ -126,23 +126,22 @@ public class ResourceManager {
             if (index == -2) {
                 var nextKnownIndex = -1;
                 for (var j = i; j < srcDstLineMapping.length; j++) {
-                    if (srcDstLineMapping[j] > 0) {
+                    if (srcDstLineMapping[j] >= 0) {
                         nextKnownIndex = srcDstLineMapping[j];
                         break;
                     }
                 }
                 if (nextKnownIndex == -1) {
-                    nextKnownIndex = lastKnownIndex + 1;
+                    index = lastKnownIndex + 1;
                     output.add("");
                 } else {
-                    if (index + 1 > nextKnownIndex) {
-                        nextKnownIndex -= 1;
-                    } else {
-                        nextKnownIndex -= 1;
-                        output.add("");
-                    }                    
+                    index = nextKnownIndex + offset -1;
+                    if (index - (lastKnownIndex) < 1) {
+                        index += 1;
+                        output.add(index, "");
+                    }
                 }
-                lastKnownIndex = nextKnownIndex;
+                lastKnownIndex = index;
                 continue;
             }
             
