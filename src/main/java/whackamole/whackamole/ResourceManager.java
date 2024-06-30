@@ -124,9 +124,25 @@ public class ResourceManager {
         for (int i = 0; i < srcDstLineMapping.length; i++) {
             var index = srcDstLineMapping[i];
             if (index == -2) {
-                offset += 1;
-                index += offset;
-                // output.add(index, "");
+                var nextKnownIndex = -1;
+                for (var j = i; j < srcDstLineMapping.length; j++) {
+                    if (srcDstLineMapping[j] > 0) {
+                        nextKnownIndex = srcDstLineMapping[j];
+                        break;
+                    }
+                }
+                if (nextKnownIndex == -1) {
+                    nextKnownIndex = lastKnownIndex + 1;
+                    output.add("");
+                } else {
+                    if (index + 1 > nextKnownIndex) {
+                        nextKnownIndex -= 1;
+                    } else {
+                        nextKnownIndex -= 1;
+                        output.add("");
+                    }                    
+                }
+                lastKnownIndex = nextKnownIndex;
                 continue;
             }
             
