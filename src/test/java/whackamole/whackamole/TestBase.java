@@ -9,7 +9,6 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Damageable;
 
@@ -113,7 +112,7 @@ public class TestBase {
         
         Mockito.doNothing().when(DamageableMock).setDamage(0);
         Mockito.doNothing().when(ItemMetaMock).setUnbreakable(true);
-        when(ItemMetaMock.addEnchant(Enchantment.LURE, 1, true)).thenReturn(true);
+        // when(ItemMetaMock.addEnchant(Enchantment.LURE, 1, true)).thenReturn(true);
         Mockito.doNothing().when(ItemMetaMock).addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         Mockito.doNothing().when(ItemMetaMock).setDisplayName("");
         

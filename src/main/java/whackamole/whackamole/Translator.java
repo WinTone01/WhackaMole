@@ -271,31 +271,6 @@ public enum Translator {
         else return " '" + String.join("', '", out) + "' ";
     }
 
-    private static void loadFiles() {
-        List<String> languages = Arrays.asList("en_US", "de_DE", "nl_NL", "fr_FR", "es_ES", "ru_RU", "tr_TR", "zh_TW");
-        File langFolder = new File(Config.AppConfig.storageFolder + "/locales");
-
-        // * Folder creation
-        if (!langFolder.exists()) {
-            langFolder.mkdirs();
-            Logger.info("Langfolder created");
-        }
-
-        // * Files creation
-        try {
-            for (String language : languages) {
-                File f = new File(langFolder + "/" + language + ".properties");
-                if (!f.exists()) {
-                    InputStream load = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName());
-                    Files.copy(load, f.toPath());
-                }
-                updateFiles(f, language);
-            }
-        } catch (IOException e) {
-            Logger.error(e.getMessage());
-        }
-    }
-
     private static void updateFiles(File f, String language) {
         String ResourceData = Config.AppConfig.storageFolder + "/locales/" + language + ".properties";
         String FileData     = Bukkit.getPluginManager().getPlugin("WhackaMole").getResource(f.getName()).toString();
@@ -315,7 +290,7 @@ public enum Translator {
     }
 
     public static void onLoad() {
-        loadFiles();
+        // loadFiles();
         translatorProps = null;
         for (Translator item : values()) {
             item.LookupTranslation();

@@ -16,7 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.MockedStatic;
 
-public class TranslationTest extends TestBase{
+public class TranslationTest extends TestBase {
 
     public static List<Locale> getLanguages() {
         List<Locale> languages = new ArrayList<Locale>();
