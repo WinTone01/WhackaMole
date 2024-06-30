@@ -11,9 +11,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
-import org.bukkit.Bukkit;
-
-
 public class ResourceManager {
     private static final String[] supportedLanguages = new String[] {
         "en_US", "de_DE", "nl_NL", "fr_FR", "es_ES", "ru_RU", "tr_TR", "zh_TW"
