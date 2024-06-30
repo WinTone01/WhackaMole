@@ -133,11 +133,13 @@ public class ResourceManager {
                 }
                 if (nextKnownIndex == -1) {
                     index = lastKnownIndex + 1;
+                    offset += 1;
                     output.add("");
                 } else {
-                    index = nextKnownIndex + offset -1;
+                    index = nextKnownIndex - 1 + offset;
                     if (index - (lastKnownIndex) < 1) {
                         index += 1;
+                        offset += 1;
                         output.add(index, "");
                     }
                 }

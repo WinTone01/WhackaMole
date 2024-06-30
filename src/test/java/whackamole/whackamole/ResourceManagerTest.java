@@ -14,7 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class ResourceManagerTest extends TestBase {
-    public static File testFileDirectory = new File("test/resourceMerges");
+    public static File testFileDirectory = new File("src/test/resources/resourceMerges");
     public static File outputFileDirectory = new File("output/resourceMerges");
 
 
