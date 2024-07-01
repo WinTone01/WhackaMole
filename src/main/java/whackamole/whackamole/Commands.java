@@ -1,13 +1,12 @@
 package whackamole.whackamole;
 
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.IStringTooltip;
-import dev.jorel.commandapi.StringTooltip;
+import dev.jorel.commandapi.*;
 import dev.jorel.commandapi.arguments.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import org.bukkit.block.BlockFace;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -68,8 +67,8 @@ public class Commands {
     }
 
     public Commands(Main main) {
-        new CommandAPICommand("WhackaMole")
-                .withAliases("WAM", "Whack")
+        new CommandAPICommand("whackamole")
+                .withAliases("wam")
                 .withSubcommand(new CommandAPICommand(String.valueOf(Translator.COMMANDS_CREATE))
                         .withPermission(Config.Permissions.PERM_CREATE)
                         .withArguments(new StringArgument("Game name")
@@ -286,20 +285,7 @@ public class Commands {
                 .withSubcommand(new CommandAPICommand(String.valueOf(Translator.COMMANDS_RELOAD))
                         .withPermission(Config.Permissions.PERM_RELOAD)
                         .executes((sender, args) ->{
-                            this.manager.unloadGames();
-                            Translator.onReload();
-                            Config.onLoad(main);
-                            Logger.onLoad(main);
-                            if (!Econ.onEnable()) {
-                                main.getServer().getPluginManager().disablePlugin(main);
-                                return 0;
-                            }
-                            this.manager.GameLoading(null);
-
-                            sender.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_RELOAD_SUCCESS);
-                            Logger.success("Done! V" + main.getDescription().getVersion());
-                            return 0;
-
+                            onReload(main, sender);
                         })
                 )
                 .withSubcommand(new CommandAPICommand(String.valueOf(Translator.COMMANDS_TOP))
@@ -582,6 +568,24 @@ public class Commands {
             this.removeGame.put(player, System.currentTimeMillis() + 10000);
             return false;
         }
+    }
+
+    private void onReload(Main main, CommandSender sender) {
+        this.manager.unloadGames();
+        Config.onLoad(main);
+        ResourceManager.onReload();
+        Translator.onReload();
+        Logger.onLoad(main);
+        if (!Econ.onEnable()) {
+            main.getServer().getPluginManager().disablePlugin(main);
+        }
+        this.manager.GameLoading(null);
+        CommandAPI.unregister("whackamole", true);
+        CommandAPI.unregister("wam", true);
+        new Commands(main);
+
+        sender.sendMessage(Config.AppConfig.PREFIX + Translator.COMMANDS_RELOAD_SUCCESS);
+        Logger.success("Done! V" + main.getDescription().getVersion());
     }
 
 }
