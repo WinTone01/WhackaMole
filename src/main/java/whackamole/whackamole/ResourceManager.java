@@ -1,10 +1,7 @@
 package whackamole.whackamole;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -173,7 +170,7 @@ public class ResourceManager {
         }
         try (var Istream = new FileInputStream(langFile)) {
             var properties = new Properties();
-            properties.load(Istream);
+            properties.load(new InputStreamReader(Istream, StandardCharsets.UTF_8));
             languageProperties = Optional.of(properties);
         } catch (IOException e) {
             languageLoadFailed = true;
