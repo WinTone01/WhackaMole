@@ -1,14 +1,13 @@
 package whackamole.whackamole;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.regex.Matcher;
 
 import org.bukkit.entity.Player;
 
 public enum Translator {
-        MAIN_OLDVERSION                                     ("Main.oldVersion")
+        TRANSLATOR                                          ("Translator")
+    ,   MAIN_OLDVERSION                                     ("Main.oldVersion")
     ,   MAIN_CONFIGLOADFAIL                                 ("Main.configLoadFail")
     ,   UPDATEFAIL                                          ("Update.updateFail", String.class)
     ,   LOGGER_WARNING                                      ("Logger.Warning", String.class)
@@ -158,6 +157,7 @@ public enum Translator {
     public String key;
     public String value = "";
     public String formattedValue;
+
     private Translator(String key) {
         this.key = key;
         this.requiredTypes = new Object[0];
@@ -172,10 +172,12 @@ public enum Translator {
 
 
     private void LookupTranslation() {
-        try {
-            ResourceBundle resource = ResourceBundle.getBundle("Lang", Config.AppConfig.Language);
-            this.value = resource.getString(this.key);
-        } catch(Exception e) {}
+        this.value = ResourceManager.getProperty(this.key);
+
+        if (this.value.isEmpty()) {
+            Logger.error(this.key + " has no value, cannot initialize");
+        }
+
     }
 
     public String Format() {
@@ -259,7 +261,13 @@ public enum Translator {
     }
 
     public static void onLoad() {
-        for(Translator item : values()) {
+        for (Translator item : values()) {
+            item.LookupTranslation();
+        }
+    }
+
+    public static void onReload() {
+        for (Translator item : values()) {
             item.LookupTranslation();
         }
     }

@@ -22,7 +22,6 @@ public class Config {
     public static class AppConfig {
         public static Locale Language = new Locale("en", "US");
         public final static String configFileName = "config.yml", configVersion = "1.8";
-
         public static String storageFolder = "./plugins/WhackaMole"
                 ,   PREFIX = ChatColor.translateAlternateColorCodes('&', "&e&l[&6&lWAM&e&l] &f> ");
 
@@ -94,7 +93,6 @@ public class Config {
                 axeMeta.setUnbreakable(true);
                 axeMeta.addEnchant(Enchantment.LURE, 1, true);
                 axeMeta.addItemFlags(
-                        ItemFlag.HIDE_ATTRIBUTES,
                         ItemFlag.HIDE_ENCHANTS,
                         ItemFlag.HIDE_UNBREAKABLE);
                 axeMeta.setDisplayName(HAMMERNAME);
@@ -113,7 +111,7 @@ public class Config {
                             Translator.CONFIG_TICKET_LORE1.toString(),
                             Translator.CONFIG_TICKET_LORE2.toString(),
                             Translator.CONFIG_TICKET_LORE3.toString()));
-            ticketInfo.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+            ticketInfo.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             TICKET.setItemMeta(ticketInfo);
             return true;
         }
