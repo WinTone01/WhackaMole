@@ -2,6 +2,7 @@ package whackamole.whackamole;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Optional;
@@ -60,7 +61,7 @@ public class ResourceManager {
                 file.createNewFile();
                 var resultingData = mergeLanguageFile(resource, file);
                 var outputS = new FileOutputStream(file);
-                outputS.write(resultingData.getBytes("utf-8"));
+                outputS.write(resultingData.getBytes(StandardCharsets.UTF_8));
                 outputS.flush();
                 outputS.close();
             } catch (IOException e) {
@@ -71,10 +72,10 @@ public class ResourceManager {
     }
 
     private static String mergeLanguageFile(InputStream sourceS, File userFile) throws IOException {
-        try (var userS = new FileInputStream(userFile)) {
-            return mergeLanguageFile(new String(sourceS.readAllBytes()), new String(userS.readAllBytes()));
-        }
+        var userData = Files.readString(userFile.toPath(), StandardCharsets.UTF_8);
+        return mergeLanguageFile(new String(sourceS.readAllBytes(), StandardCharsets.UTF_8), userData);
     }
+
     private static String mergeLanguageFile(String sourceData, String userData) {
         boolean isCRLF = userData.contains("\n") ? userData.contains("\r") : true;
 
@@ -160,14 +161,14 @@ public class ResourceManager {
      */
     private static void loadResource() {
         File langFile = new File(Config.AppConfig.storageFolder + "/locales", Config.AppConfig.Language + ".properties");
-        if (! langFile.exists() && ! languageLoadFailed) {
+//        if (! langFile.exists() && ! languageLoadFailed) {
             loadFiles(supportedLanguages);
 
             if (languageLoadFailed) {
                 // * Failed to create user language files.
                 return;
             }
-        }
+//        }
         try (var Istream = new FileInputStream(langFile)) {
             var properties = new Properties();
             properties.load(new InputStreamReader(Istream, StandardCharsets.UTF_8));

@@ -173,6 +173,11 @@ public enum Translator {
 
     private void LookupTranslation() {
         this.value = ResourceManager.getProperty(this.key);
+
+        if (this.value.isEmpty()) {
+            Logger.error(this.key + " has no value, cannot initialize");
+        }
+
     }
 
     public String Format() {

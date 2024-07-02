@@ -17,25 +17,25 @@ public class Commands {
 
     private final Hashtable<UUID, Long> buyTicket = new Hashtable<>();
     private final Hashtable<UUID, Long> removeGame = new Hashtable<>();
-    String gameNameTip      = String.valueOf(Translator.COMMANDS_TIPS_NAME);
-    String DirectionTip     = String.valueOf(Translator.COMMANDS_TIPS_DIRECTION);
-    String jackpotTip       = String.valueOf(Translator.COMMANDS_TIPS_JACKPOT);
-    String jackpotSpawnTip  = String.valueOf(Translator.COMMANDS_TIPS_SPAWNCHANCE);
-    String maxMissedTip     = String.valueOf(Translator.COMMANDS_TIPS_MAXMISSED);
-    String hitpointsTip     = String.valueOf(Translator.COMMANDS_TIPS_HITPOINTS);
-    String intervalTip      = String.valueOf(Translator.COMMANDS_TIPS_INTERVAL);
-    String spawnChanceTip   = String.valueOf(Translator.COMMANDS_TIPS_SPAWNCHANCE);
-    String moleSpeedTip     = String.valueOf(Translator.COMMANDS_TIPS_MOLESPEED);
-    String diffScaleTip     = String.valueOf(Translator.COMMANDS_TIPS_DIFFICULTYSCALE);
-    String diffIncreaseTip  = String.valueOf(Translator.COMMANDS_TIPS_DIFFICULTYINCREASE);
-    String cooldownTip      = String.valueOf(Translator.COMMANDS_TIPS_COOLDOWN);
-    String musicTip      = String.valueOf(Translator.COMMANDS_TIPS_MUSIC);
-    String moleHeadTip      = String.valueOf(Translator.COMMANDS_TIPS_MOLEHEAD);
-    String highscoreTip     = String.valueOf(Translator.COMMANDS_TIPS_HIGHSCORE);
-    String teleportTip     = String.valueOf(Translator.COMMANDS_TIPS_TELEPORT);
-    String streakTip     = String.valueOf(Translator.COMMANDS_TIPS_STREAK);
-    String toggleScoreboardTip    = String.valueOf(Translator.COMMANDS_TIPS_TOGGLESCOREBOARD);
-    private Settings settingType = Settings.NULL;
+    String gameNameTip              = String.valueOf(Translator.COMMANDS_TIPS_NAME);
+    String DirectionTip             = String.valueOf(Translator.COMMANDS_TIPS_DIRECTION);
+    String jackpotTip               = String.valueOf(Translator.COMMANDS_TIPS_JACKPOT);
+    String jackpotSpawnTip          = String.valueOf(Translator.COMMANDS_TIPS_SPAWNCHANCE);
+    String maxMissedTip             = String.valueOf(Translator.COMMANDS_TIPS_MAXMISSED);
+    String hitpointsTip             = String.valueOf(Translator.COMMANDS_TIPS_HITPOINTS);
+    String intervalTip              = String.valueOf(Translator.COMMANDS_TIPS_INTERVAL);
+    String spawnChanceTip           = String.valueOf(Translator.COMMANDS_TIPS_SPAWNCHANCE);
+    String moleSpeedTip             = String.valueOf(Translator.COMMANDS_TIPS_MOLESPEED);
+    String diffScaleTip             = String.valueOf(Translator.COMMANDS_TIPS_DIFFICULTYSCALE);
+    String diffIncreaseTip          = String.valueOf(Translator.COMMANDS_TIPS_DIFFICULTYINCREASE);
+    String cooldownTip              = String.valueOf(Translator.COMMANDS_TIPS_COOLDOWN);
+    String musicTip                 = String.valueOf(Translator.COMMANDS_TIPS_MUSIC);
+    String moleHeadTip              = String.valueOf(Translator.COMMANDS_TIPS_MOLEHEAD);
+    String highscoreTip             = String.valueOf(Translator.COMMANDS_TIPS_HIGHSCORE);
+    String teleportTip              = String.valueOf(Translator.COMMANDS_TIPS_TELEPORT);
+    String streakTip                = String.valueOf(Translator.COMMANDS_TIPS_STREAK);
+    String toggleScoreboardTip      = String.valueOf(Translator.COMMANDS_TIPS_TOGGLESCOREBOARD);
+    private Settings settingType    = Settings.NULL;
     enum Settings {
         NULL,
         DIRECTION(Translator.COMMANDS_SETTINGS_DIRECTION),
