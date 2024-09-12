@@ -6,7 +6,7 @@
 
     <groupId>WhackaMole</groupId>
     <artifactId>WhackaMole</artifactId>
-    <version>2.5.0</version>
+    <version>2.5.1</version>
     <packaging>jar</packaging>
 
     <name>WhackaMole</name>
@@ -196,7 +196,7 @@
         <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-shade</artifactId>
-            <version>9.5.0</version>
+            <version>9.5.3</version>
         </dependency>
         <!-- * Testing dependencies -->
         <dependency>
